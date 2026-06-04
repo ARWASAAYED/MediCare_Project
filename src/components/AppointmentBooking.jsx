@@ -62,6 +62,15 @@ const AppointmentBooking = ({ doctorId, doctorName, onClose, onSuccess }) => {
       return;
     }
 
+    if (user.role === 'doctor') {
+      const selfDoctor = doctors.find(d => d.userId === user.id);
+      if (selfDoctor && formData.doctorId === selfDoctor.id) {
+        setError("Doctors cannot book appointments with themselves");
+        setLoading(false);
+        return;
+      }
+    }
+
     if (!formData.doctorId || !formData.date || !formData.time) {
       setError("Please fill in all required fields");
       setLoading(false);
@@ -188,7 +197,9 @@ const AppointmentBooking = ({ doctorId, doctorName, onClose, onSuccess }) => {
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-red focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
             >
               <option value="">Choose a doctor...</option>
-              {doctors.map((doctor) => (
+              {doctors
+                .filter((doctor) => !(user?.role === 'doctor' && doctor.userId === user?.id))
+                .map((doctor) => (
                 <option key={doctor.id} value={doctor.id}>
                   {doctor.name} - {doctor.specialty}
                 </option>

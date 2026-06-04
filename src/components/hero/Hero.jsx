@@ -50,10 +50,6 @@ const Hero = () => {
                 <p className="text-sm text-slate-500 font-medium">Patient Rating</p>
               </div>
               <div>
-                <div className="flex items-center gap-1 font-bold text-2xl text-slate-900">
-                  10k<span className="text-blue-600 text-lg">+</span>
-                </div>
-                <p className="text-sm text-slate-500 font-medium">Recovered Patients</p>
               </div>
               <div>
                 <div className="flex items-center gap-1 font-bold text-2xl text-slate-900">

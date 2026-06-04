@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   Star,
   Stethoscope,
@@ -17,12 +18,15 @@ import Button from "../../components/common/Button";
 const DoctorsPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { user } = useSelector((s) => s.auth);
   const [doctors, setDoctors] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSpecialty, setSelectedSpecialty] = useState("all");
+  const [minRating, setMinRating] = useState(0);
+  const [sortBy, setSortBy] = useState("rating-desc");
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
 
@@ -90,8 +94,25 @@ const DoctorsPage = () => {
       );
     }
 
+    // Filter by rating
+    if (minRating > 0) {
+      filtered = filtered.filter((doc) => doc.rating >= minRating);
+    }
+
+    // Sort
+    filtered = [...filtered].sort((a, b) => {
+      if (sortBy === "rating-desc") {
+        return (b.rating || 0) - (a.rating || 0);
+      } else if (sortBy === "name-asc") {
+        return a.name.localeCompare(b.name);
+      } else if (sortBy === "name-desc") {
+        return b.name.localeCompare(a.name);
+      }
+      return 0;
+    });
+
     setFilteredDoctors(filtered);
-  }, [searchTerm, selectedSpecialty, doctors]);
+  }, [searchTerm, selectedSpecialty, minRating, sortBy, doctors]);
 
   const getUniqueSpecialties = () => {
     const specialties = doctors.map((doc) => doc.specialty);
@@ -166,7 +187,7 @@ const DoctorsPage = () => {
           </div>
 
           {/* Search and Filter */}
-          <div className="flex flex-col md:flex-row gap-4 max-w-4xl mx-auto">
+          <div className="flex flex-col md:flex-row gap-4 max-w-5xl mx-auto">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
@@ -174,23 +195,49 @@ const DoctorsPage = () => {
                 placeholder="Search by name or specialty..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-red focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-red focus:border-transparent outline-none"
               />
             </div>
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <select
-                value={selectedSpecialty}
-                onChange={(e) => setSelectedSpecialty(e.target.value)}
-                className="pl-10 pr-8 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-red focus:border-transparent appearance-none bg-white"
-              >
-                <option value="all">All Specialties</option>
-                {getUniqueSpecialties().map((specialty) => (
-                  <option key={specialty} value={specialty}>
-                    {specialty}
-                  </option>
-                ))}
-              </select>
+            <div className="flex flex-wrap md:flex-nowrap gap-4">
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <select
+                  value={selectedSpecialty}
+                  onChange={(e) => setSelectedSpecialty(e.target.value)}
+                  className="pl-10 pr-8 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-red focus:border-transparent appearance-none bg-white outline-none w-full md:w-auto min-w-[180px]"
+                >
+                  <option value="all">All Specialties</option>
+                  {getUniqueSpecialties().map((specialty) => (
+                    <option key={specialty} value={specialty}>
+                      {specialty}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="relative">
+                <Star className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <select
+                  value={minRating}
+                  onChange={(e) => setMinRating(Number(e.target.value))}
+                  className="pl-10 pr-8 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-red focus:border-transparent appearance-none bg-white outline-none w-full md:w-auto min-w-[160px]"
+                >
+                  <option value={0}>Any Rating</option>
+                  <option value={4.5}>4.5+ Stars</option>
+                  <option value={4.0}>4.0+ Stars</option>
+                  <option value={3.5}>3.5+ Stars</option>
+                </select>
+              </div>
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-red focus:border-transparent appearance-none bg-white outline-none w-full md:w-auto min-w-[160px]"
+                >
+                  <option value="rating-desc">Highest Rated</option>
+                  <option value="name-asc">Name (A-Z)</option>
+                  <option value="name-desc">Name (Z-A)</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -289,15 +336,17 @@ const DoctorsPage = () => {
                       >
                         View Details
                       </Button>
-                      <Button
-                        onClick={() => handleBookAppointment(doctor)}
-                        variant="primary"
-                        size="sm"
-                        className="flex-1 gap-1"
-                      >
-                        <Calendar className="w-4 h-4" />
-                        Book
-                      </Button>
+                      {!(user?.role === "doctor" && user?.id === doctor.userId) && (
+                        <Button
+                          onClick={() => handleBookAppointment(doctor)}
+                          variant="primary"
+                          size="sm"
+                          className="flex-1 gap-1"
+                        >
+                          <Calendar className="w-4 h-4" />
+                          Book
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>

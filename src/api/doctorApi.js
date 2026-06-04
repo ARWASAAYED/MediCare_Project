@@ -1,27 +1,40 @@
-import apiClient from "./apiClient";
+// src/api/doctorApi.js
+import { db } from "./firebase";
+import {
+  collection,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 
 export const doctorApi = {
   getAll: async () => {
-    const res = await apiClient.get("/doctors");
-    return res.data;
+    const snapshot = await getDocs(collection(db, "doctors"));
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
   },
 
   getById: async (id) => {
-    const res = await apiClient.get(`/doctors/${id}`);
-    return res.data;
+    const docSnap = await getDoc(doc(db, "doctors", id));
+    if (!docSnap.exists()) throw new Error("Doctor not found");
+    return { id: docSnap.id, ...docSnap.data() };
   },
 
   create: async (data) => {
-    const res = await apiClient.post("/doctors", data);
-    return res.data;
+    const docRef = await addDoc(collection(db, "doctors"), data);
+    return { id: docRef.id, ...data };
   },
 
   update: async (id, data) => {
-    const res = await apiClient.put(`/doctors/${id}`, data);
-    return res.data;
+    const ref = doc(db, "doctors", id);
+    await updateDoc(ref, data);
+    const updated = await getDoc(ref);
+    return { id: updated.id, ...updated.data() };
   },
 
   delete: async (id) => {
-    await apiClient.delete(`/doctors/${id}`);
+    await deleteDoc(doc(db, "doctors", id));
   },
 };

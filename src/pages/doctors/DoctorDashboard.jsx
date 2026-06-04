@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 // Reuse components
 import DoctorDashboardAppointments from "../../components/doctors/DoctorDashboardAppointments";
 import DoctorPatientsList from "../../components/doctors/DoctorPatientsList";
+import DoctorProfileEdit from "../../components/doctors/DoctorProfileEdit";
 
 const DoctorDashboard = () => {
   const { user } = useSelector((state) => state.auth);
@@ -159,6 +160,16 @@ const DoctorDashboard = () => {
             >
                 My Patients
             </button>
+            <button
+                onClick={() => setActiveTab("profile")}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    activeTab === "profile"
+                    ? "bg-brand-red text-white"
+                    : "bg-white text-gray-600 hover:bg-gray-100"
+                }`}
+            >
+                My Profile
+            </button>
         </div>
 
         <div className="grid gap-6">
@@ -176,6 +187,13 @@ const DoctorDashboard = () => {
                 <DoctorPatientsList 
                     patients={patients} 
                     getInitials={getInitials} 
+                />
+            )}
+
+            {activeTab === "profile" && (
+                <DoctorProfileEdit 
+                    doctor={doctor} 
+                    onUpdate={(updatedDoctor) => setDoctor(updatedDoctor)} 
                 />
             )}
         </div>

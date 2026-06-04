@@ -13,6 +13,8 @@ import PatientDashboard from "./pages/patient/PatientDashboard.jsx";
 import DoctorDashboard from "./pages/doctors/DoctorDashboard.jsx";
 import DoctorsPage from "./pages/doctors/DoctorsPage.jsx";
 import DoctorDetails from "./pages/doctors/DoctorDetails.jsx";
+import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
+import { ProtectedRoute, RoleRoute } from "./components/common/ProtectedRoute.jsx";
 import Contact from "./pages/Contact.jsx";
 import Footer from "./components/layout/Footer.jsx";
 import Navbar from "./components/layout/Navbar.jsx";
@@ -51,9 +53,10 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/patient-dashboard" element={<PatientDashboard />} />
-          <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/patient-dashboard" element={<RoleRoute roles={["patient"]}><PatientDashboard /></RoleRoute>} />
+          <Route path="/doctor-dashboard" element={<RoleRoute roles={["doctor"]}><DoctorDashboard /></RoleRoute>} />
+          <Route path="/admin/*" element={<RoleRoute roles={["admin"]}><AdminDashboard /></RoleRoute>} />
           <Route path="/doctors" element={<DoctorsPage />} />
           <Route path="/doctors/:id" element={<DoctorDetails />} />
           <Route path="/contact" element={<Contact />} />

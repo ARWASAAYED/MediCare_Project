@@ -1,20 +1,39 @@
-import apiClient from "./apiClient";
+// src/api/reviewApi.js
+import { db } from "./firebase";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  query,
+  where,
+} from "firebase/firestore";
 
 export const reviewApi = {
   create: async (data) => {
-    const res = await apiClient.post("/reviews", data);
-    return res.data;
+    const docRef = await addDoc(collection(db, "reviews"), data);
+    return { id: docRef.id, ...data };
   },
+
   getByDoctorId: async (doctorId) => {
-    const res = await apiClient.get(`/reviews?doctorId=${doctorId}`);
-    return res.data;
+    const q = query(
+      collection(db, "reviews"),
+      where("doctorId", "==", doctorId)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
   },
+
   getByPatientId: async (patientId) => {
-    const res = await apiClient.get(`/reviews?patientId=${patientId}`);
-    return res.data;
+    const q = query(
+      collection(db, "reviews"),
+      where("patientId", "==", patientId)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
   },
+
   getAll: async () => {
-    const res = await apiClient.get("/reviews");
-    return res.data;
+    const snapshot = await getDocs(collection(db, "reviews"));
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
   },
 };

@@ -2,7 +2,7 @@ import React from "react";
 import { Star, Stethoscope, Phone, Calendar } from "lucide-react";
 import Button from "../common/Button";
 
-const DoctorInfoSidebar = ({ doctor, getInitials, onBookAppointment }) => {
+const DoctorInfoSidebar = ({ doctor, getInitials, onBookAppointment, isOwner }) => {
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden sticky top-6">
       <div className="h-96 bg-gray-100 relative overflow-hidden">
@@ -82,15 +82,21 @@ const DoctorInfoSidebar = ({ doctor, getInitials, onBookAppointment }) => {
           )}
         </div>
 
-        <Button
-          onClick={onBookAppointment}
-          variant="primary"
-          size="lg"
-          className="w-full flex items-center justify-center gap-2"
-        >
-          <Calendar className="w-5 h-5" />
-          Book Appointment
-        </Button>
+        {isOwner ? (
+          <div className="bg-gray-100 text-gray-600 text-center py-3 rounded-lg font-semibold border border-gray-200">
+            This is your profile
+          </div>
+        ) : (
+          <Button
+            onClick={onBookAppointment}
+            variant="primary"
+            size="lg"
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <Calendar className="w-5 h-5" />
+            Book Appointment
+          </Button>
+        )}
       </div>
     </div>
   );

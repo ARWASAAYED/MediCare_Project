@@ -22,6 +22,7 @@ import { setUser } from "../store/authSlice";
 import PatientAppointments from "../components/PatientAppointments";
 import DoctorAppointments from "../components/DoctorAppointments";
 import { doctorApi } from "../api/doctorApi";
+import { authApi } from "../api/authApi";
 
 const Profile = () => {
   const { user } = useSelector((s) => s.auth);
@@ -51,12 +52,18 @@ const Profile = () => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = async (event) => {
         const imageData = event.target?.result;
         setImage(imageData);
-        dispatch(setUser({ ...user, image: imageData }));
-        localStorage.setItem("userImage", imageData);
-        toast.success("Profile image updated!");
+        const updatedUser = { ...user, image: imageData };
+        try {
+          await authApi.updateUser(user.id, updatedUser);
+          dispatch(setUser(updatedUser));
+          localStorage.setItem("userImage", imageData);
+          toast.success("Profile image updated!");
+        } catch (err) {
+          toast.error("Failed to save image");
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -87,10 +94,15 @@ const Profile = () => {
               <div className="mb-6 bg-blue-50 p-4 rounded-lg">
                 <ProfileForm
                   user={user}
-                  onSave={(updatedUser) => {
-                    dispatch(setUser(updatedUser));
-                    setIsEditMode(false);
-                    toast.success("Profile updated successfully!");
+                  onSave={async (updatedUser) => {
+                    try {
+                      await authApi.updateUser(user.id, updatedUser);
+                      dispatch(setUser(updatedUser));
+                      setIsEditMode(false);
+                      toast.success("Profile updated successfully!");
+                    } catch (err) {
+                      toast.error("Failed to update profile");
+                    }
                   }}
                   onCancel={() => setIsEditMode(false)}
                 />

@@ -2,28 +2,23 @@ import React, { useState, useEffect } from "react";
 import {
   ChevronRight,
   Phone,
-  Mail,
-  MapPin,
   Star,
-  Users,
   Heart,
   Clock,
-  Stethoscope,
   Activity,
   Award,
   Calendar,
-  Shield,
-  TrendingUp,
   CheckCircle2,
   ArrowRight,
   Sparkles,
   Brain,
   Baby,
   Bone,
-  Ambulance,
   Smile,
   Eye,
   Quote,
+  Search,
+  Stethoscope,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { doctorApi } from "../../api/doctorApi";
@@ -32,6 +27,8 @@ import { serviceApi } from "../../api/serviceApi";
 
 import AppointmentBooking from "../../components/AppointmentBooking";
 import Button from "../../components/common/Button";
+import ServicesSection from "../../components/ServicesSection";
+import CTA from "../../components/CTA";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -42,6 +39,7 @@ const Home = () => {
   const [error, setError] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
+
 
   useEffect(() => {
     if (window.location.hash) {
@@ -66,7 +64,11 @@ const Home = () => {
         ]);
 
         setServices(servicesData);
-        setReviews(reviewsData.slice(0, 3)); // Display top 3 reviews
+        // Sort by rating descending and take top 3
+        const topReviews = [...reviewsData]
+          .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+          .slice(0, 3);
+        setReviews(topReviews);
 
         // Calculate ratings
         const doctorsWithRatings = doctorsData.map(doc => {
@@ -77,9 +79,10 @@ const Home = () => {
           return { ...doc, rating: avgRating, reviewCount: docReviews.length };
         });
 
-        // Filter out doctors without proper data and take first 6
+        // Filter out doctors without proper data, sort by rating, and take first 6
         const validDoctors = doctorsWithRatings
           .filter((doc) => doc.name && doc.specialty)
+          .sort((a, b) => b.rating - a.rating)
           .slice(0, 6);
         setDoctors(validDoctors);
       } catch (error) {
@@ -117,14 +120,15 @@ const Home = () => {
       .toUpperCase();
   };
 
-  const getGradient = (index) => {
+
+  const getServiceLightGradient = (index) => {
     const gradients = [
-      "from-brand-red to-pink-600",
-      "from-blue-500 to-indigo-600",
-      "from-green-500 to-teal-600",
-      "from-purple-500 to-purple-600",
-      "from-orange-500 to-orange-600",
-      "from-yellow-500 to-yellow-600",
+      "from-rose-300 to-pink-100",
+      "from-blue-50 to-indigo-300",
+      "from-green-300 to-teal-100",
+      "from-purple-300 to-purple-100",
+      "from-orange-50 to-orange-300",
+      "from-yellow-300 to-amber-100",
     ];
     return gradients[index % gradients.length];
   };
@@ -152,12 +156,12 @@ const Home = () => {
 
   const getServiceGradient = (index) => {
     const gradients = [
-      "from-brand-red to-pink-600",
-      "from-blue-500 to-indigo-600",
-      "from-green-500 to-teal-600",
-      "from-purple-500 to-purple-600",
-      "from-orange-500 to-orange-600",
-      "from-yellow-500 to-yellow-600",
+      "from-rose-400 to-pink-500",
+      "from-blue-400 to-indigo-500",
+      "from-green-400 to-teal-500",
+      "from-purple-400 to-purple-500",
+      "from-orange-400 to-orange-500",
+      "from-yellow-300 to-amber-400",
     ];
     return gradients[index % gradients.length];
   };
@@ -235,12 +239,6 @@ const Home = () => {
                   </div>
                   <span className="text-gray-700 font-semibold">
                     4.9/5 Rating
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Users className="w-6 h-6 text-blue-600" />
-                  <span className="text-gray-700 font-semibold">
-                    10K+ Patients
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -380,53 +378,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* Stats Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white border-y border-gray-100">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              {
-                icon: Users,
-                value: "10K+",
-                label: "Happy Patients",
-                color: "text-blue-600",
-              },
-              {
-                icon: Stethoscope,
-                value: "50+",
-                label: "Expert Doctors",
-                color: "text-brand-red",
-              },
-              {
-                icon: Award,
-                value: "15+",
-                label: "Years Experience",
-                color: "text-yellow-600",
-              },
-              {
-                icon: Activity,
-                value: "100%",
-                label: "Success Rate",
-                color: "text-green-600",
-              },
-            ].map((stat, idx) => (
-              <div
-                key={idx}
-                className="text-center p-6 rounded-2xl hover:bg-gray-50 transition-colors"
-              >
-                <stat.icon className={`w-10 h-10 ${stat.color} mx-auto mb-3`} />
-                <div className="text-3xl font-bold text-gray-900 mb-1">
-                  {stat.value}
-                </div>
-                <div className="text-gray-600 font-medium">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Key Features */}
+       {/* Key Features */}
       <section
         id="about"
         className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-gray-50"
@@ -471,24 +423,7 @@ const Home = () => {
                 desc: "Round-the-clock emergency and support services whenever you need us",
                 color: "from-blue-500 to-blue-600",
               },
-              {
-                icon: Activity,
-                title: "Modern Equipment",
-                desc: "Latest technology and advanced equipment for accurate diagnosis",
-                color: "from-green-500 to-green-600",
-              },
-              {
-                icon: Shield,
-                title: "Certified Quality",
-                desc: "ISO certified and internationally recognized healthcare standards",
-                color: "from-purple-500 to-purple-600",
-              },
-              {
-                icon: TrendingUp,
-                title: "Continuous Improvement",
-                desc: "Regular training and updates to provide the best possible care",
-                color: "from-orange-500 to-orange-600",
-              },
+              
             ].map((feature, idx) => (
               <div
                 key={idx}
@@ -508,57 +443,40 @@ const Home = () => {
           </div>
         </div>
       </section>
-
       {/* Services Section */}
-      <section id="services" className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
+      <ServicesSection services={services} limit={6} showViewAll={true} />
+
+      {/* How it Works Section */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full text-blue-700 font-semibold text-sm mb-4">
-              Our Services
-            </div>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Comprehensive Healthcare Solutions
+              How It Works
             </h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              From routine checkups to specialized treatments, we offer a wide
-              range of medical services
+              Your journey to better health in three simple steps
             </p>
           </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service, idx) => {
-              const Icon = iconMap[service.icon] || Stethoscope;
-              return (
-                <div
-                  key={service.id || idx}
-                  className="group relative bg-white rounded-2xl p-8 border border-gray-100 hover:border-transparent cursor-pointer transition-all duration-300 hover:shadow-2xl overflow-hidden"
-                >
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${getServiceGradient(
-                      idx
-                    )} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
-                  />
-                  <div 
-                    className="relative z-10"
-                    onClick={() => navigate(`/doctors?specialty=${service.title}`)}
-                  >
-                    <div className="text-brand-red group-hover:text-white mb-4 transform group-hover:scale-110 transition-all duration-300">
-                      <Icon className="w-12 h-12" />
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-white mb-2 transition-colors">
-                      {service.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 group-hover:text-white/90 transition-colors">
-                      {service.description}
-                    </p>
-                    <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-white mt-4 group-hover:translate-x-2 transition-all duration-300" />
-                  </div>
-                </div>
-              );
-            })}
+          <div className="grid md:grid-cols-3 gap-8 relative">
+            <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gray-200 z-0" />
+            {[
+              { step: "1", icon: Search, title: "Find a Doctor", desc: "Search by specialty, name, or rating to find the perfect specialist for your needs." },
+              { step: "2", icon: Calendar, title: "Book Online", desc: "Choose an available time slot and book your appointment instantly online." },
+              { step: "3", icon: Heart, title: "Get Care", desc: "Visit the hospital and receive world-class medical care from our experts." }
+            ].map((s, idx) => (
+              <div key={idx} className="text-center relative">
+                 <div className="w-24 h-24 mx-auto bg-white border-4 border-[oklch(0.77_0.18_186.55)] rounded-full flex items-center justify-center mb-6 shadow-xl relative z-10 transition-transform hover:scale-110 ">
+                    <s.icon className="w-10 h-10 text-[oklch(0.77_0.18_186.55)]" />
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-brand-red text-white rounded-full flex items-center justify-center font-bold">{s.step}</div>
+                 </div>
+                 <h3 className="text-2xl font-bold text-gray-900 mb-3">{s.title}</h3>
+                 <p className="text-gray-600 max-w-xs mx-auto">{s.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
+
 
       {/* Doctors Section */}
       <section
@@ -720,11 +638,7 @@ const Home = () => {
                         {doctor.reviewCount > 0 && ` (${doctor.reviewCount})`}
                       </span>
                     </div>
-                    {doctor.id && (
-                      <div className="flex items-center gap-2 mb-4 text-xs text-gray-500">
-                        
-                      </div>
-                    )}
+
                     <div className="flex gap-2">
                       <Button
                         onClick={() => navigate(`/doctors/${doctor.id}`)}
@@ -767,7 +681,7 @@ const Home = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {reviews.length > 0 ? (
+            {reviews.length > 0  ? (
               reviews.map((review) => (
                 <div
                   key={review.id}
@@ -775,7 +689,7 @@ const Home = () => {
                 >
                   <Quote className="absolute top-8 right-8 w-12 h-12 text-gray-200" />
                   <div className="flex items-center gap-1 mb-6">
-                    {[...Array(5)].map((_, i) => (
+                    { [...Array(5)].map((_, i) => (
                       <Star
                         key={i}
                         className={`w-5 h-5 ${
@@ -812,48 +726,10 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section
-        className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
-        style={{
-          background:
-            "linear-gradient(135deg, oklch(0.77 0.18 186.55), oklch(0.70 0.20 200))",
-        }}
-      >
-        <div className="absolute inset-0 opacity-20">
-          <div
-            className="w-full h-full"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            }}
-          />
-        </div>
-        <div className="max-w-4xl mx-auto text-center text-white relative z-10">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Ready to Book Your Appointment?
-          </h2>
-          <p className="text-xl mb-10 text-white/90 max-w-2xl mx-auto">
-            Schedule a consultation with our expert doctors today and take the
-            first step towards better health
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => handleBookAppointment()}
-              className="inline-flex items-center justify-center gap-2 bg-white px-8 py-4 rounded-xl hover:opacity-90 transition-all duration-200 font-bold text-lg shadow-xl hover:shadow-2xl"
-              style={{ color: "oklch(0.77 0.18 186.55)" }}
-            >
-              <Calendar className="w-5 h-5" />
-              Schedule Now
-            </button>
-            <button
-              onClick={() => scrollToSection("contact")}
-              className="inline-flex items-center justify-center gap-2 border-2 border-white text-white px-8 py-4 rounded-xl hover:bg-white/10 transition-all duration-200 font-bold text-lg"
-            >
-              <Phone className="w-5 h-5" />
-              Call Us Now
-            </button>
-          </div>
-        </div>
-      </section>
+      <CTA 
+        onPrimaryClick={() => handleBookAppointment()} 
+        onSecondaryClick={() => scrollToSection("contact")} 
+      />
 
       {/* Appointment Booking Modal */}
       {showBookingModal && (
@@ -867,6 +743,31 @@ const Home = () => {
           onSuccess={handleBookingSuccess}
         />
       )}
+
+      {/* Trust Banner / Partners */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50 border-t border-gray-200">
+        <div className="max-w-7xl mx-auto text-center">
+           <h3 className="text-xl font-bold text-gray-400 mb-8 uppercase tracking-widest">Recognized By & Accepted Insurances</h3>
+           <div className="flex flex-wrap justify-center gap-12 items-center opacity-60 hover:opacity-100 transition-all duration-500">
+             {["AETNA", "BLUECROSS", "CIGNA", "MEDICARE", "UNITEDHEALTH"].map(partner => (
+               <div key={partner} className="text-2xl md:text-3xl font-black text-gray-400 hover:text-[oklch(0.77_0.18_186.55)] transition-colors cursor-default">
+                 {partner}
+               </div>
+             ))}
+           </div>
+        </div>
+      </section>
+
+      {/* Floating CTA for Mobile */}
+      <div className="md:hidden fixed bottom-6 right-6 z-50">
+        <Button
+          onClick={() => handleBookAppointment()}
+          variant="primary"
+          className="shadow-2xl rounded-full h-14 w-14 flex items-center justify-center p-0"
+        >
+          <Calendar className="w-6 h-6" />
+        </Button>
+      </div>
     </div>
   );
 };

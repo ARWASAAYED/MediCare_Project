@@ -26,10 +26,10 @@ const DoctorAboutSection = ({ doctor }) => {
             <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold text-gray-900">
-                Board Certified in {doctor.specialty}
+                {doctor.education ? doctor.education : `Board Certified in ${doctor.specialty}`}
               </p>
               <p className="text-gray-600 text-sm">
-                Certified by the Medical Board
+                Certified Medical Professional
               </p>
             </div>
           </div>
@@ -37,7 +37,7 @@ const DoctorAboutSection = ({ doctor }) => {
             <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold text-gray-900">
-                Years of Experience
+                {doctor.experience ? `${doctor.experience} Years of Experience` : "Years of Experience"}
               </p>
               <p className="text-gray-600 text-sm">
                 Extensive experience in {doctor.specialty}
@@ -64,17 +64,30 @@ const DoctorAboutSection = ({ doctor }) => {
           <Clock className="w-6 h-6 text-brand-red" />
           Availability
         </h2>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <p className="font-semibold text-gray-900 mb-1">
-              Monday - Friday
-            </p>
-            <p className="text-gray-600">9:00 AM - 5:00 PM</p>
-          </div>
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <p className="font-semibold text-gray-900 mb-1">Saturday</p>
-            <p className="text-gray-600">9:00 AM - 1:00 PM</p>
-          </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {doctor.availability && Object.keys(doctor.availability).length > 0 ? (
+            Object.entries(doctor.availability).map(([day, time]) => (
+              <div key={day} className="p-4 bg-gray-50 rounded-lg">
+                <p className="font-semibold text-gray-900 mb-1 capitalize">
+                  {day === "weekdays" ? "Monday - Friday" : day}
+                </p>
+                <p className="text-gray-600">{time}</p>
+              </div>
+            ))
+          ) : (
+            <>
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <p className="font-semibold text-gray-900 mb-1">
+                  Monday - Friday
+                </p>
+                <p className="text-gray-600">9:00 AM - 5:00 PM</p>
+              </div>
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <p className="font-semibold text-gray-900 mb-1">Saturday</p>
+                <p className="text-gray-600">9:00 AM - 1:00 PM</p>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

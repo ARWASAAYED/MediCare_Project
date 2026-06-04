@@ -1,32 +1,55 @@
 // src/api/appointmentApi.js
-import apiClient from "./apiClient";
+import { db } from "./firebase";
+import {
+  collection,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  where,
+} from "firebase/firestore";
 
 export const appointmentApi = {
   getAll: async () => {
-    const res = await apiClient.get("/appointments");
-    return res.data;
+    const snapshot = await getDocs(collection(db, "appointments"));
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
   },
 
   getById: async (id) => {
-    const res = await apiClient.get(`/appointments/${id}`);
-    return res.data;
+    const docSnap = await getDoc(doc(db, "appointments", id));
+    if (!docSnap.exists()) throw new Error("Appointment not found");
+    return { id: docSnap.id, ...docSnap.data() };
   },
 
-  // json-server filter query: ?patientId=xxx
   getByPatientId: async (patientId) => {
-    const res = await apiClient.get(`/appointments?patientId=${patientId}`);
-    return res.data;
+    const q = query(
+      collection(db, "appointments"),
+      where("patientId", "==", patientId)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
   },
 
-  // json-server filter query: ?doctorId=xxx
   getByDoctorId: async (doctorId) => {
-    const res = await apiClient.get(`/appointments?doctorId=${doctorId}`);
-    return res.data;
+    const q = query(
+      collection(db, "appointments"),
+      where("doctorId", "==", doctorId)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
   },
 
   checkAvailability: async (doctorId, date) => {
-    const res = await apiClient.get(`/appointments?doctorId=${doctorId}`);
-    return res.data.filter((apt) => {
+    const q = query(
+      collection(db, "appointments"),
+      where("doctorId", "==", doctorId)
+    );
+    const snapshot = await getDocs(q);
+    const all = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    return all.filter((apt) => {
       const aptDate = new Date(apt.date).toDateString();
       const checkDate = new Date(date).toDateString();
       return aptDate === checkDate;
@@ -34,16 +57,18 @@ export const appointmentApi = {
   },
 
   create: async (data) => {
-    const res = await apiClient.post("/appointments", data);
-    return res.data;
+    const docRef = await addDoc(collection(db, "appointments"), data);
+    return { id: docRef.id, ...data };
   },
 
   update: async (id, data) => {
-    const res = await apiClient.put(`/appointments/${id}`, data);
-    return res.data;
+    const ref = doc(db, "appointments", id);
+    await updateDoc(ref, data);
+    const updated = await getDoc(ref);
+    return { id: updated.id, ...updated.data() };
   },
 
   delete: async (id) => {
-    await apiClient.delete(`/appointments/${id}`);
+    await deleteDoc(doc(db, "appointments", id));
   },
 };

@@ -1,8 +1,10 @@
-import apiClient from "./apiClient";
+// src/api/serviceApi.js
+import { db } from "./firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 export const serviceApi = {
   getAll: async () => {
-    const response = await apiClient.get("/services");
-    return response.data;
+    const snapshot = await getDocs(collection(db, "services"));
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
   },
 };

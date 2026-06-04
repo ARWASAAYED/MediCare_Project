@@ -4,11 +4,16 @@ const InputWithIcon = ({
   Icon,
   value,
   onChange,
+  onBlur,
   placeholder,
   type = "text",
   required,
   minLength,
+  autoComplete,
+  error,
 }) => {
+  const borderClass = "border-gray-300 focus:ring-brand-red";
+
   return (
     <div className="relative">
       {Icon ? (
@@ -18,10 +23,12 @@ const InputWithIcon = ({
         type={type}
         value={value}
         onChange={onChange}
+        onBlur={onBlur}
         placeholder={placeholder}
         required={required}
         minLength={minLength}
-        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-red"
+        autoComplete={autoComplete}
+        className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${borderClass}`}
       />
     </div>
   );

@@ -18,6 +18,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { serviceApi } from "../api/serviceApi";
 import Button from "./common/Button";
+import ServicesSection from "./ServicesSection";
 
 const iconMap = {
   Heart,
@@ -30,14 +31,14 @@ const iconMap = {
 };
 
 const gradients = [
-  "from-rose-500 to-pink-600",
-  "from-blue-500 to-indigo-600",
-  "from-green-500 to-teal-600",
-  "from-purple-500 to-purple-700",
-  "from-orange-500 to-orange-600",
-  "from-yellow-400 to-amber-500",
-  "from-cyan-500 to-sky-600",
-  "from-red-500 to-rose-600",
+  "from-rose-400 to-pink-500",
+  "from-blue-400 to-indigo-500",
+  "from-green-400 to-teal-500",
+  "from-purple-400 to-purple-500",
+  "from-orange-400 to-orange-500",
+  "from-yellow-300 to-amber-400",
+  "from-cyan-400 to-sky-500",
+  "from-red-400 to-rose-500",
 ];
 
 const ServicesPage = () => {
@@ -121,72 +122,14 @@ const ServicesPage = () => {
       </section>
 
       {/* Services Grid */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full text-blue-700 font-semibold text-sm mb-4">
-              Our Services
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Comprehensive Healthcare Solutions
-            </h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Each department is staffed with highly qualified specialists
-              committed to delivering the best outcomes.
-            </p>
-          </div>
-
-          {loading ? (
-            <div className="text-center py-20">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
-              <p className="mt-4 text-gray-600">Loading services...</p>
-            </div>
-          ) : error ? (
-            <div className="text-center py-20">
-              <div className="bg-red-50 border border-red-200 rounded-xl p-8 max-w-md mx-auto">
-                <p className="text-red-800 font-semibold mb-2">Connection Error</p>
-                <p className="text-red-600 text-sm mb-4">{error}</p>
-                <Button onClick={fetchServices} variant="primary" size="sm">
-                  Retry
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {services.map((service, idx) => {
-                const Icon = iconMap[service.icon] || Stethoscope;
-                return (
-                  <div
-                    key={service.id || idx}
-                    className="group relative bg-white rounded-2xl p-8 border border-gray-100 hover:border-transparent cursor-pointer transition-all duration-300 hover:shadow-2xl overflow-hidden"
-                    onClick={() => navigate(`/doctors?specialty=${service.title}`)}
-                  >
-                    {/* Gradient overlay on hover */}
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-br ${gradients[idx % gradients.length]} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
-                    />
-                    <div className="relative z-10">
-                      <div className="text-blue-600 group-hover:text-white mb-4 transform group-hover:scale-110 transition-all duration-300">
-                        <Icon className="w-12 h-12" />
-                      </div>
-                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-white mb-2 transition-colors">
-                        {service.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 group-hover:text-white/90 transition-colors leading-relaxed">
-                        {service.description}
-                      </p>
-                      <div className="flex items-center gap-1 mt-4 text-gray-400 group-hover:text-white transition-colors">
-                        <span className="text-sm font-medium">View Doctors</span>
-                        <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </section>
+      <ServicesSection
+        services={services}
+        loading={loading}
+        error={error}
+        onRetry={fetchServices}
+        showViewAll={false}
+        description="Each department is staffed with highly qualified specialists committed to delivering the best outcomes."
+      />
 
       {/* Why Choose Us */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
@@ -210,29 +153,6 @@ const ServicesPage = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { icon: Stethoscope, title: "Expert Doctors",         desc: "Highly qualified specialists with years of experience in their respective fields.",       color: "from-rose-500 to-rose-600" },
-              { icon: Heart,       title: "Patient-First Care",     desc: "Personalized treatment plans designed for optimal recovery and long-term well-being.",      color: "from-pink-500 to-pink-600" },
-              { icon: Clock,       title: "24/7 Available",         desc: "Round-the-clock emergency and support services whenever you need us.",                       color: "from-blue-500 to-blue-600" },
-              { icon: Activity,    title: "Modern Equipment",       desc: "Latest technology and advanced equipment for accurate diagnosis and treatment.",              color: "from-green-500 to-green-600" },
-              { icon: Shield,      title: "Certified Quality",      desc: "ISO certified and internationally recognized healthcare standards.",                          color: "from-purple-500 to-purple-600" },
-              { icon: Award,       title: "Award-Winning Care",     desc: "Consistently recognised for clinical excellence and outstanding patient outcomes.",           color: "from-orange-500 to-orange-600" },
-            ].map((feature, idx) => (
-              <div
-                key={idx}
-                className="group relative bg-white p-8 rounded-2xl border border-gray-100 hover:border-transparent hover:shadow-2xl transition-all duration-300 overflow-hidden"
-              >
-                <div
-                  className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${feature.color} text-white mb-4 group-hover:scale-110 transition-transform duration-300`}
-                >
-                  <feature.icon className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 

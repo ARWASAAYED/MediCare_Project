@@ -81,13 +81,16 @@ const Navbar = () => {
                   <div className="w-8 h-8 rounded-full bg-brand-red/10 flex items-center justify-center text-brand-red">
                     <User className="w-4 h-4" />
                   </div>
-                  <span className="hidden lg:inline">{user.name || user.username}</span>
+                  <span className="hidden lg:inline font-semibold">
+                    {user.name || user.username}
+                    {user.role === "admin" && <span className="ml-2 text-xs bg-[oklch(0.77_0.18_186.55)] text-white px-2 py-0.5 rounded-full">Admin</span>}
+                  </span>
                 </Link>
                 <Link
-                  to={user.role === "doctor" ? "/doctor-dashboard" : "/patient-dashboard"}
-                  className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl text-gray-700 hover:bg-gray-100 transition-all duration-200 font-medium"
+                  to={user.role === "admin" ? "/admin" : user.role === "doctor" ? "/doctor-dashboard" : "/patient-dashboard"}
+                  className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl text-gray-700 hover:bg-gray-100 transition-all duration-200 font-medium capitalize"
                 >
-                  appointments
+                  {user.role === "admin" ? "dashboard" : "appointments"}
                 </Link>
                 <Button
                   onClick={handleLogout}
@@ -163,7 +166,15 @@ const Navbar = () => {
                 <div className="w-8 h-8 rounded-full bg-brand-red/10 flex items-center justify-center text-brand-red">
                   <User className="w-4 h-4" />
                 </div>
-                Profile
+                Profile {user.role === "admin" && <span className="text-xs bg-[oklch(0.77_0.18_186.55)] text-white px-2 py-0.5 rounded-full ml-2">Admin</span>}
+              </Link>
+              <Link
+                to={user.role === "admin" ? "/admin" : user.role === "doctor" ? "/doctor-dashboard" : "/patient-dashboard"}
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-lg font-medium text-[oklch(0.77_0.18_186.55)] hover:bg-brand-red/5 transition-all capitalize"
+              >
+                <Calendar className="w-5 h-5" />
+                {user.role === "admin" ? "Dashboard" : "Appointments"}
               </Link>
               <button
                 onClick={() => {

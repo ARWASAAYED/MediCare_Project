@@ -139,7 +139,7 @@ const DoctorDetails = () => {
     }
   };
 
-  const isOwner = user?.id === doctor?.userId;
+  const isOwner = Boolean(user?.id && doctor?.userId && String(user.id) === String(doctor.userId));
 
   if (loading) {
     return (
@@ -197,6 +197,7 @@ const DoctorDetails = () => {
               doctor={doctor}
               getInitials={getInitials}
               onBookAppointment={() => setShowBookingModal(true)}
+              isOwner={isOwner}
             />
           </div>
 
